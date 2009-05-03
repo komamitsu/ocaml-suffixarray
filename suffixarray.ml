@@ -23,15 +23,27 @@ let strstr text str =
     in
     loop 0
 
-let find sa str =
+let find (sa:t) str =
   let sa_size = List.length sa in
   let rec loop first last =
     let center_pos = (first + last) / 2 in
-    let pivot = snd (List.nth sa center_pos) in
-    if strstr pivot str then fst (List.nth sa center_pos)
+    let pivot_idx, pivot_str = List.nth sa center_pos in
+    if strstr pivot_str str then 
+      let rec check_neighbor dir i findlist =
+        if i < 0 or i >= sa_size then findlist
+        else 
+          let the_pos, the_str = List.nth sa i in
+          if strstr the_str str then 
+            check_neighbor dir (i + dir) (the_pos::findlist)
+          else
+            findlist
+      in
+      let pre_findlist = check_neighbor (-1) (center_pos - 1) [] in
+      let post_findlist = check_neighbor 1 (center_pos + 1) [] in
+      pivot_idx::pre_findlist@post_findlist
     else
-      if first = last then raise Not_found
-      else if pivot > str then loop first (center_pos - 1)
+      if first = last then []
+      else if pivot_str > str then loop first (center_pos - 1)
       else loop (center_pos + 1) last
   in
   loop 0 (sa_size - 1)

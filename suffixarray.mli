@@ -1,3 +1,3 @@
 type t
 val create : string -> t
-val find : t -> string -> int
+val find : t -> string -> int list
