@@ -16,7 +16,7 @@ let create text =
       with Not_found -> loop (i + 1) result
   in
   let parts = loop 0 [] in
-  List.sort (fun a b -> String.compare (snd a) (snd b)) parts
+  List.fast_sort (fun a b -> String.compare (snd a) (snd b)) parts
 
 let strstr text str =
   let textlen = String.length text in
@@ -50,7 +50,10 @@ let find (sa:t) str =
       pivot_idx::pre_findlist@post_findlist
     else
       if first = last then []
-      else if pivot_str > str then loop first (center_pos - 1)
-      else loop (center_pos + 1) last
+      else 
+        let next_first, next_last = 
+          if pivot_str > str then (first, (center_pos - 1))
+          else ((center_pos + 1), last) in
+        loop next_first next_last
   in
   loop 0 (sa_size - 1)
