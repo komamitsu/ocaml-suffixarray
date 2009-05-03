@@ -2,11 +2,18 @@ type t = (int * string) list
 
 let create text =
   let len = String.length text in
+  let strip str =
+    let re = Str.regexp "^\\([0-9a-zA-Z]+\\)" in
+    ignore (Str.search_forward re str 0);
+    Str.matched_string str
+  in
   let rec loop i result =
     if i >= len then result
     else 
-      let part = String.sub text i (len - i) in
-      loop (i + 1) ((i, part) :: result)
+      try
+        let part = strip (String.sub text i (len - i)) in
+        loop (i + 1) ((i, part) :: result)
+      with Not_found -> loop (i + 1) result
   in
   let parts = loop 0 [] in
   List.sort (fun a b -> String.compare (snd a) (snd b)) parts
@@ -19,7 +26,7 @@ let strstr text str =
     let rec loop i =
       if i >= strlen then true
       else 
-        if text.[i] == str.[i] then loop (i + 1) else false
+        if text.[i] = str.[i] then loop (i + 1) else false
     in
     loop 0
 
