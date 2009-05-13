@@ -1,4 +1,4 @@
-type t = (int * string) list
+type t = (int * string) array
 
 let create text =
   let len = String.length text in
@@ -12,11 +12,12 @@ let create text =
     else 
       try
         let part = strip (String.sub text i (len - i)) in
-        loop (i + 1) ((i, part) :: result)
+        loop (i + 1) (Array.append result [|(i, part)|])
       with Not_found -> loop (i + 1) result
   in
-  let parts = loop 0 [] in
-  List.fast_sort (fun a b -> String.compare (snd a) (snd b)) parts
+  let parts = loop 0 [||] in
+  Array.stable_sort (fun a b -> String.compare (snd a) (snd b)) parts;
+  parts
 
 let strstr text str =
   let textlen = String.length text in
@@ -31,15 +32,15 @@ let strstr text str =
     loop 0
 
 let find (sa:t) str =
-  let sa_size = List.length sa in
+  let sa_size = Array.length sa in
   let rec loop first last =
     let center_pos = (first + last) / 2 in
-    let pivot_idx, pivot_str = List.nth sa center_pos in
+    let pivot_idx, pivot_str = sa.(center_pos) in
     if strstr pivot_str str then 
       let rec check_neighbor dir i findlist =
         if i < 0 or i >= sa_size then findlist
         else 
-          let the_pos, the_str = List.nth sa i in
+          let the_pos, the_str = sa.(i) in
           if strstr the_str str then 
             check_neighbor dir (i + dir) (the_pos::findlist)
           else
