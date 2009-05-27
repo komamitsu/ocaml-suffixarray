@@ -9,13 +9,13 @@ let create text =
   in
   let rec loop i result =
     if i >= len then result
-    else 
+    else
       try
-        let part = strip (String.sub text i (len - i)) in
-        loop (i + 1) (Array.append result [|(i, part)|])
+        let part = strip (String.sub text i (len - i)) in 
+        loop (i + 1) ((i, part) :: result)
       with Not_found -> loop (i + 1) result
-  in
-  let parts = loop 0 [||] in
+    in
+  let parts = Array.of_list (loop 0 []) in
   Array.stable_sort (fun a b -> String.compare (snd a) (snd b)) parts;
   parts
 
